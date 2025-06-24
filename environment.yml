@@ -1,0 +1,19 @@
+name: aria_enumeration
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python>=3.10
+  - pip
+  - requests
+  - shapely
+  - asf_search
+  # For packaging, and testing
+  - python-build
+  - setuptools>=61
+  - setuptools_scm>=6.2
+  - pytest
+  - pytest-cov
+  # For running
+  - pip:
+    - -r requirements-static.txt

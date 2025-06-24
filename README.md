@@ -1,2 +1,3 @@
-# aria-enumeration
-Python library for enumerating ARIA S1 GUNW processing inputs
+# ASF Enumeration
+
+Enumeration code for aria s1 gunw products
