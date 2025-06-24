@@ -1,0 +1,37 @@
+name: Distribute to PyPI
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  call-version-info-workflow:
+    uses: ASFHyP3/actions/.github/workflows/reusable-version-info.yml@v0.20.0
+    with:
+      python_version: "3.12"
+
+  distribute:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: environment.yml
+
+      - name: Build distribution
+        id: build
+        run: |
+          python -m build
+
+      - name: upload to PyPI.org
+        uses: pypa/gh-action-pypi-publish@v1.12.4
+        with:
+          user: __token__
+          password: ${{ secrets.TOOLS_PYPI_PAK }}
