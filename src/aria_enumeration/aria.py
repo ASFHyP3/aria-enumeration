@@ -10,6 +10,7 @@ import shapely
 
 @dataclass(frozen=True)
 class AriaFrame:
+    """Class for representing an aria frame."""
     frame_id: int
     path: int
     flight_direction: str
@@ -25,6 +26,7 @@ class AriaFrame:
 
 @dataclass(frozen=True)
 class AriaProductGroup:
+    """Class respresenting a valid date and list of SLC products for processing."""
     date: datetime.date
     products: list[asf.ASFProduct]
 
@@ -56,6 +58,16 @@ FRAMES_BY_ID = _load_aria_frames_by_id()
 def get_frames(
     polygon: shapely.Polygon | None = None, flight_direction: str | None = None, path: int | None = None
 ) -> list[AriaFrame]:
+    """Get all aria frames that match filter parameters.
+
+    Args:
+        polygon: get all frames intersecting polygon
+        flight_direction: filter by either 'ASCENDING' or 'DESCENDING'
+        path: path to filter by
+
+    Returns:
+        aria_frames: list of aria frames
+    """
     aria_frames = []
 
     for frame in FRAMES_BY_ID.values():
