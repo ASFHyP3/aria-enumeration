@@ -13,5 +13,5 @@ __all__ = [
     'get_frame',
     'get_stack',
     'get_slcs',
-    'does_product_exist'
+    'does_product_exist',
 ]

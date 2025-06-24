@@ -118,10 +118,10 @@ def _get_stack_from(granules: asf.ASFSearchResults) -> list[AriaProductGroup]:
     def _get_date_from_group(group: str) -> datetime.date:
         return min(datetime.datetime.fromisoformat(granule.properties['startTime']).date() for granule in group)
 
-    aria_groups = [AriaProductGroup(
-        date=_get_date_from_group(group),
-        products=[product for product in group]
-    ) for group in groups.values()]
+    aria_groups = [
+        AriaProductGroup(date=_get_date_from_group(group), products=[product for product in group])
+        for group in groups.values()
+    ]
 
     return aria_groups
 
