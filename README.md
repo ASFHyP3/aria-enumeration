@@ -35,7 +35,7 @@ TODO
 1. Install [git](https://git-scm.com/) and [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
 1. Clone the repository.
    ```
-   git clone git@github.com:ASFHyP3/aria-enumeartion.git
+   git clone git@github.com:ASFHyP3/aria-enumeration.git
    cd aria-enumeration
    ```
 1. Create and activate the conda environment.
