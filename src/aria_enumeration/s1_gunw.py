@@ -1,19 +1,12 @@
+"""Module for enumerating inputs for ARIA S1 GUNW products."""
 import datetime
 import importlib.resources
 import json
-from enum import Enum
 from collections import defaultdict
 from dataclasses import dataclass
 
 import asf_search as asf
 import shapely
-
-
-class FlightDirection(Enum):
-    """Sensor flight direction."""
-
-    ASCENDING = 'ASCENDING'
-    DESCENDING = 'DESCENDING'
 
 
 @dataclass(frozen=True)
@@ -92,7 +85,7 @@ FRAMES_BY_ID = _load_aria_frames_by_id()
 
 
 def get_frames(
-    geometry: shapely.Geometry | None = None, flight_direction: FlightDirection | None = None, path: int | None = None
+    geometry: shapely.Geometry | None = None, flight_direction: str | None = None, path: int | None = None
 ) -> list[AriaFrame]:
     """Get all aria frames that match filter parameters.
 
@@ -160,7 +153,7 @@ def get_acquisition_dates(frame_id: int) -> list[datetime.date]:
     return [acquisition.date for acquisition in aquisitions]
 
 
-def _get_granules_for_frame(frame_id: int, date: datetime.date = None) -> asf.ASFSearchResults:
+def _get_granules_for_frame(frame_id: int, date: datetime.date | None = None) -> asf.ASFSearchResults:
     frame = get_frame(frame_id)
 
     search_params = {
@@ -191,7 +184,7 @@ def _get_acquisitions_from(granules: asf.ASFSearchResults) -> list[Sentinel1Acqu
         group_id = f'{props["platform"]}_{props["orbit"]}'
         groups[group_id].append(granule)
 
-    def _get_date_from_group(group: str) -> datetime.date:
+    def _get_date_from_group(group: list[asf.ASFProduct]) -> datetime.date:
         return min(datetime.datetime.fromisoformat(granule.properties['startTime']).date() for granule in group)
 
     aria_groups = [
