@@ -1,4 +1,5 @@
 """Module for enumerating inputs for ARIA S1 GUNW products."""
+
 import datetime
 import importlib.resources
 import json
