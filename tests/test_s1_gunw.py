@@ -57,11 +57,11 @@ def test_get_slcs():
 
 
 @pytest.mark.network
-def test_does_product_exist():
+def test_product_exists():
     # 'S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1'
-    assert s1_gunw.product_exist(25388, date(2025, 5, 27), date(2025, 5, 3))
+    assert s1_gunw.product_exists(25388, date(2025, 5, 27), date(2025, 5, 3))
 
-    assert not s1_gunw.product_exist(25388, date(2025, 5, 26), date(2025, 5, 3))
+    assert not s1_gunw.product_exists(25388, date(2025, 5, 26), date(2025, 5, 3))
 
 
 def test_dates_match():

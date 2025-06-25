@@ -1,6 +1,7 @@
 import datetime
 import importlib.resources
 import json
+from enum import Enum
 from collections import defaultdict
 from dataclasses import dataclass
 
@@ -8,25 +9,60 @@ import asf_search as asf
 import shapely
 
 
+class FlightDirection(Enum):
+    """Sensor flight direction."""
+
+    ASCENDING = 'ASCENDING'
+    DESCENDING = 'DESCENDING'
+
+
 @dataclass(frozen=True)
 class AriaFrame:
-    """Class for representing an aria frame."""
+    """Class for representing an aria frame.
+
+    Args:
+        frame_id: aria frame id
+        path: path the frame is on
+        flight direction
+
+    """
+
     frame_id: int
     path: int
     flight_direction: str
     polygon: shapely.Polygon
 
     def does_intersect(self, geometry: shapely.Geometry) -> bool:
+        """Check if geometry intersects aria frame.
+
+        Args:
+            geometry: shapely geometry to check frames against
+
+        Returns:
+            does_intersect: if the frame instersects the geometry
+        """
         return shapely.intersects(self.polygon, geometry)
 
     @property
     def wkt(self) -> str:
+        """Get the wkt of the frames polygon.
+
+        Returns:
+            wkt: The wkt of the aria frame
+        """
         return shapely.to_wkt(self.polygon)
 
 
 @dataclass(frozen=True)
-class AriaProductGroup:
-    """Class respresenting a valid date and list of SLC products for processing."""
+class Sentinel1Acquisition:
+    """Class respresenting a Sentinel 1 acquisition.
+
+    Args:
+         date: the date of the acquisition
+         products: list of SLC's from the acquisition
+
+    """
+
     date: datetime.date
     products: list[asf.ASFProduct]
 
@@ -56,14 +92,14 @@ FRAMES_BY_ID = _load_aria_frames_by_id()
 
 
 def get_frames(
-    geometry: shapely.Geometry | None = None, flight_direction: str | None = None, path: int | None = None
+    geometry: shapely.Geometry | None = None, flight_direction: FlightDirection | None = None, path: int | None = None
 ) -> list[AriaFrame]:
     """Get all aria frames that match filter parameters.
 
     Args:
         geometry: get all frames intersecting polygon
         flight_direction: filter by either 'ASCENDING' or 'DESCENDING'
-        path: path to filter by
+        path: path to filter frames
 
     Returns:
         aria_frames: list of aria frames
@@ -86,10 +122,23 @@ def get_frames(
 
 
 def get_frame(frame_id: int) -> AriaFrame:
+    """Get a single aria frame by it's frame ID .
+
+    Returns:
+        aria_frame: the aria frame with the given ID
+    """
     return FRAMES_BY_ID[frame_id]
 
 
-def get_acquisitions(frame_id: int) -> list[AriaProductGroup]:
+def get_acquisitions(frame_id: int) -> list[Sentinel1Acquisition]:
+    """Get all the possible Sentinel 1 aquisitions over a given frame ID.
+
+    Args:
+        frame_id: the aria frame to get the aquisitions from
+
+    Returns:
+        aquisitions: All the Sentinel 1 acquisitions for a given frame
+    """
     granules = _get_granules_for_frame(frame_id)
     aquisitions = _get_acquisitions_from(granules)
     aquisitions.sort(key=lambda group: group.date)
@@ -98,6 +147,14 @@ def get_acquisitions(frame_id: int) -> list[AriaProductGroup]:
 
 
 def get_acquisition_dates(frame_id: int) -> list[datetime.date]:
+    """Get all the possible dates of aquisitions over a given frame ID.
+
+    Args:
+        frame_id: the aria frame to get the aquisitions from
+
+    Returns:
+        aquisitions: All the dates of acquisitions for a given frame
+    """
     aquisitions = get_acquisitions(frame_id)
 
     return [acquisition.date for acquisition in aquisitions]
@@ -127,7 +184,7 @@ def _get_granules_for_frame(frame_id: int, date: datetime.date = None) -> asf.AS
     return results
 
 
-def _get_acquisitions_from(granules: asf.ASFSearchResults) -> list[AriaProductGroup]:
+def _get_acquisitions_from(granules: asf.ASFSearchResults) -> list[Sentinel1Acquisition]:
     groups = defaultdict(list)
     for granule in granules:
         props = granule.properties
@@ -138,7 +195,7 @@ def _get_acquisitions_from(granules: asf.ASFSearchResults) -> list[AriaProductGr
         return min(datetime.datetime.fromisoformat(granule.properties['startTime']).date() for granule in group)
 
     aria_groups = [
-        AriaProductGroup(date=_get_date_from_group(group), products=[product for product in group])
+        Sentinel1Acquisition(date=_get_date_from_group(group), products=[product for product in group])
         for group in groups.values()
     ]
 
@@ -146,12 +203,33 @@ def _get_acquisitions_from(granules: asf.ASFSearchResults) -> list[AriaProductGr
 
 
 def get_slcs(frame_id: int, date: datetime.date) -> list[asf.ASFProduct]:
+    """Get SLC's for a given Sentinel 1 acquisition.
+
+    Args:
+        frame_id: aria frame ID
+        date: date of the acquisition
+
+    Returns:
+        slcs: list of Sentinel 1 SLCs
+
+    """
     slcs = _get_granules_for_frame(frame_id, date)
 
     return slcs
 
 
-def product_exist(frame_id: int, reference_date: datetime.date, secondary_date: datetime.date) -> bool:
+def product_exists(frame_id: int, reference_date: datetime.date, secondary_date: datetime.date) -> bool:
+    """Check if aria product already exists.
+
+    Args:
+        frame_id: aria frame ID
+        reference_date: Reference date of the product
+        secondary_date: Secondary date of the product
+
+    Returns:
+        exists_in_archive: whether the product already exists in ASF's archive
+
+    """
     date_buffer = datetime.timedelta(days=1)
     params = {
         'dataset': asf.constants.DATASET.ARIA_S1_GUNW,
@@ -161,8 +239,11 @@ def product_exist(frame_id: int, reference_date: datetime.date, secondary_date: 
     }
 
     results = asf.search(**params)
+    exists_in_archive = any(
+        [_dates_match(result.properties['sceneName'], reference_date, secondary_date) for result in results]
+    )
 
-    return any([_dates_match(result.properties['sceneName'], reference_date, secondary_date) for result in results])
+    return exists_in_archive
 
 
 def _dates_match(granule: str, reference: datetime.date, secondary: datetime.date) -> bool:
