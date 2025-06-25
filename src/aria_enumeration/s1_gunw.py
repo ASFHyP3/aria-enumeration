@@ -16,8 +16,8 @@ class AriaFrame:
     flight_direction: str
     polygon: shapely.Polygon
 
-    def does_intersect(self, polygon: shapely.Polygon) -> bool:
-        return shapely.intersects(self.polygon, polygon)
+    def does_intersect(self, geometry: shapely.Geometry) -> bool:
+        return shapely.intersects(self.polygon, geometry)
 
     @property
     def wkt(self) -> str:
@@ -56,12 +56,12 @@ FRAMES_BY_ID = _load_aria_frames_by_id()
 
 
 def get_frames(
-    polygon: shapely.Polygon | None = None, flight_direction: str | None = None, path: int | None = None
+    geometry: shapely.Geometry | None = None, flight_direction: str | None = None, path: int | None = None
 ) -> list[AriaFrame]:
     """Get all aria frames that match filter parameters.
 
     Args:
-        polygon: get all frames intersecting polygon
+        geometry: get all frames intersecting polygon
         flight_direction: filter by either 'ASCENDING' or 'DESCENDING'
         path: path to filter by
 
@@ -77,7 +77,7 @@ def get_frames(
         if path and path != frame.path:
             continue
 
-        if polygon and not frame.does_intersect(polygon):
+        if geometry and not frame.does_intersect(geometry):
             continue
 
         aria_frames.append(frame)
@@ -89,14 +89,21 @@ def get_frame(frame_id: int) -> AriaFrame:
     return FRAMES_BY_ID[frame_id]
 
 
-def get_stack(frame_id: int) -> list[AriaProductGroup]:
+def get_acquisitions(frame_id: int) -> list[AriaProductGroup]:
     granules = _get_granules_for_frame(frame_id)
-    stack = _get_stack_from(granules)
-    stack.sort(key=lambda group: group.date)
-    return stack
+    aquisitions = _get_acquisitions_from(granules)
+    aquisitions.sort(key=lambda group: group.date)
+
+    return aquisitions
 
 
-def _get_granules_for_frame(frame_id: int, date: datetime.date = None) -> list[asf.ASFSearchResults]:
+def get_acquisition_dates(frame_id: int) -> list[datetime.date]:
+    aquisitions = get_acquisitions(frame_id)
+
+    return [acquisition.date for acquisition in aquisitions]
+
+
+def _get_granules_for_frame(frame_id: int, date: datetime.date = None) -> asf.ASFSearchResults:
     frame = get_frame(frame_id)
 
     search_params = {
@@ -120,7 +127,7 @@ def _get_granules_for_frame(frame_id: int, date: datetime.date = None) -> list[a
     return results
 
 
-def _get_stack_from(granules: asf.ASFSearchResults) -> list[AriaProductGroup]:
+def _get_acquisitions_from(granules: asf.ASFSearchResults) -> list[AriaProductGroup]:
     groups = defaultdict(list)
     for granule in granules:
         props = granule.properties
@@ -144,7 +151,7 @@ def get_slcs(frame_id: int, date: datetime.date) -> list[asf.ASFProduct]:
     return slcs
 
 
-def does_product_exist(frame_id: int, reference_date: datetime.date, secondary_date: datetime.date) -> bool:
+def product_exist(frame_id: int, reference_date: datetime.date, secondary_date: datetime.date) -> bool:
     date_buffer = datetime.timedelta(days=1)
     params = {
         'dataset': asf.constants.DATASET.ARIA_S1_GUNW,
