@@ -31,10 +31,10 @@ def test_get_frames_by_path():
 
 def test_get_frames_by_flight_direction():
     ascending = s1_gunw.get_frames(flight_direction='ASCENDING')
-    assert all([frame.flight_direction == 'ASCENDING' for frame in ascending])
+    assert all(frame.flight_direction == 'ASCENDING' for frame in ascending)
 
     descending = s1_gunw.get_frames(flight_direction='DESCENDING')
-    assert all([frame.flight_direction == 'DESCENDING' for frame in descending])
+    assert all(frame.flight_direction == 'DESCENDING' for frame in descending)
 
 
 def test_s1_gunw_frame():
@@ -57,9 +57,10 @@ def test_get_acquisitions():
 
 @pytest.mark.network
 def test_get_acquisition():
-    slcs = s1_gunw.get_acquisition(200, date(2025, 5, 28))
+    acquisition = s1_gunw.get_acquisition(200, date(2025, 5, 28))
 
-    assert slcs
+    assert acquisition.frame.id == 200
+    assert all(s1_gunw._date_from_granule(product) == date(2025, 5, 28) for product in acquisition.products)
 
 
 @pytest.mark.network

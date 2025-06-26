@@ -183,12 +183,8 @@ def _get_acquisitions_from(granules: asf.ASFSearchResults, frame: AriaFrame) -> 
         group_id = f'{props["platform"]}_{props["orbit"]}'
         groups[group_id].append(granule)
 
-    def date_from_granule(granule: asf.ASFProduct) -> datetime.date:
-        start_time = granule.properties['startTime']
-        return datetime.datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S%z').date()
-
     def get_date_from_group(group: list[asf.ASFProduct]) -> datetime.date:
-        return min(date_from_granule(granule) for granule in group)
+        return min(_date_from_granule(granule) for granule in group)
 
     s1_acquisitions = [
         Sentinel1Acquisition(date=get_date_from_group(group), frame=frame, products=[product for product in group])
@@ -252,3 +248,8 @@ def _dates_match(granule: str, reference: datetime.date, secondary: datetime.dat
     ]
 
     return granule_reference == reference and granule_secondary == secondary
+
+
+def _date_from_granule(granule: asf.ASFProduct) -> datetime.date:
+    start_time = granule.properties['startTime']
+    return datetime.datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S%z').date()
