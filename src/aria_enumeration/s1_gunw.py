@@ -154,20 +154,6 @@ def get_acquisitions(frame_id: int) -> list[Sentinel1Acquisition]:
     return aquisitions
 
 
-def get_acquisition_dates(frame_id: int) -> list[datetime.date]:
-    """Get all the possible dates of aquisitions over a given frame ID.
-
-    Args:
-        frame_id: the aria frame to get the aquisitions from
-
-    Returns:
-        aquisitions: All the dates of acquisitions for a given frame
-    """
-    aquisitions = get_acquisitions(frame_id)
-
-    return [acquisition.date for acquisition in aquisitions]
-
-
 def _get_granules_for(frame: AriaFrame, date: datetime.date | None = None) -> asf.ASFSearchResults:
     search_params = {
         'dataset': asf.constants.DATASET.SENTINEL1,

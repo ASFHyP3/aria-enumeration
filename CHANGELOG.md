@@ -11,4 +11,4 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 - `asf_enumeration` module
    - contains `s1_gunw` module
-      - `AriaFrame`, `Sentinel1Acquisition`, `get_frames`, `get_frame`, `get_acquisitions`, `get_acquisition_dates`, `get_slcs`, `product_exists`
+      - `AriaFrame`, `Sentinel1Acquisition`, `get_frames`, `get_frame`, `get_acquisitions`, `get_acquisition`, `product_exists`
