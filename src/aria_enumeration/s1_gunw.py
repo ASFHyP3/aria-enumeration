@@ -186,9 +186,8 @@ def _get_acquisitions_from(granules: asf.ASFSearchResults) -> list[Sentinel1Acqu
         groups[group_id].append(granule)
 
     def date_from_granule(granule: asf.ASFProduct) -> datetime.date:
-        start = granule.properties['startTime']
-
-        return datetime.datetime.strptime(start, '%Y-%m-%dT%H:%M:%S%z').date()
+        start_time = granule.properties['startTime']
+        return datetime.datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S%z').date()
 
     def get_date_from_group(group: list[asf.ASFProduct]) -> datetime.date:
         return min(date_from_granule(granule) for granule in group)
