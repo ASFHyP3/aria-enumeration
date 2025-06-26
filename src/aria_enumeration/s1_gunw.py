@@ -12,10 +12,10 @@ import shapely
 
 @dataclass(frozen=True)
 class AriaFrame:
-    """Class for representing an aria frame.
+    """Class for representing an ARIA frame.
 
     Args:
-        id: Id of the aria frame
+        id: ID of the ARIA frame
         path: path the frame is on
         flight_direction: either 'ASCENDING' or 'DESCENDING'
         polygon: shapely polygon of the frame geometry
@@ -27,7 +27,7 @@ class AriaFrame:
     polygon: shapely.Polygon
 
     def does_intersect(self, geometry: shapely.Geometry) -> bool:
-        """Check if geometry intersects aria frame.
+        """Check if geometry intersects ARIA frame.
 
         Args:
             geometry: shapely geometry to check frames against
@@ -42,19 +42,19 @@ class AriaFrame:
         """Get the wkt of the frames polygon.
 
         Returns:
-            wkt: The wkt of the aria frame
+            wkt: The wkt of the ARIA frame
         """
         return shapely.to_wkt(self.polygon)
 
 
 @dataclass(frozen=True)
 class Sentinel1Acquisition:
-    """Class respresenting a Sentinel 1 acquisition overa given aria frame.
+    """Class respresenting a Sentinel-1 acquisition over a given ARIA frame.
 
     Args:
          date: the date of the acquisition
-         frame: aria frame the the acquisition covers
-         products: list of SLC's from the acquisition
+         frame: ARIA frame the the acquisition covers
+         products: list of Sentinel-1 SLC's from the acquisition
     """
 
     date: datetime.date
@@ -100,7 +100,7 @@ FRAMES_BY_ID = _load_aria_frames_by_id()
 def get_frames(
     geometry: shapely.Geometry | None = None, flight_direction: str | None = None, path: int | None = None
 ) -> list[AriaFrame]:
-    """Get all aria frames that match filter parameters.
+    """Get all ARIA frames that match filter parameters.
 
     Args:
         geometry: get all frames intersecting polygon
@@ -108,7 +108,7 @@ def get_frames(
         path: path to filter frames
 
     Returns:
-        aria_frames: list of aria frames
+        aria_frames: list of ARIA frames
     """
     aria_frames = []
 
@@ -128,26 +128,26 @@ def get_frames(
 
 
 def get_frame(frame_id: int) -> AriaFrame:
-    """Get a single aria frame by it's frame ID .
+    """Get a single ARIA frame based on it's ID.
 
     Args:
-        frame_id: aria frame id
+        frame_id: ARIA frame id
 
     Returns:
-        aria_frame: the aria frame with the given ID
+        aria_frame: the ARIA frame with the given ID
     """
     _validate_frame_id(frame_id)
     return FRAMES_BY_ID[frame_id]
 
 
 def get_acquisitions(frame_id: int) -> list[Sentinel1Acquisition]:
-    """Get all the possible Sentinel 1 aquisitions over a given frame ID.
+    """Get all the possible Sentinel-1 aquisitions over a given ARIA frame ID.
 
     Args:
-        frame_id: the aria frame to get the aquisitions from
+        frame_id: the ARIA frame ID to get the aquisitions from
 
     Returns:
-        aquisitions: All the Sentinel 1 acquisitions for a given frame
+        aquisitions: All the Sentinel-1 acquisitions for a given ARIA frame
     """
     frame = get_frame(frame_id)
     granules = _get_granules_for(frame)
@@ -180,28 +180,28 @@ def _get_granules_for(frame: AriaFrame, date: datetime.date | None = None) -> as
 
 
 def _get_acquisitions_from(granules: asf.ASFSearchResults, frame: AriaFrame) -> list[Sentinel1Acquisition]:
-    groups = defaultdict(list)
+    acquisition_groups = defaultdict(list)
     for granule in granules:
         props = granule.properties
         group_id = f'{props["platform"]}_{props["orbit"]}'
-        groups[group_id].append(granule)
+        acquisition_groups[group_id].append(granule)
 
     def get_date_from_group(group: list[asf.ASFProduct]) -> datetime.date:
         return min(_date_from_granule(granule) for granule in group)
 
     s1_acquisitions = [
         Sentinel1Acquisition(date=get_date_from_group(group), frame=frame, products=[product for product in group])
-        for group in groups.values()
+        for group in acquisition_groups.values()
     ]
 
     return s1_acquisitions
 
 
 def get_acquisition(frame_id: int, date: datetime.date) -> Sentinel1Acquisition:
-    """Get a Sentinel 1 acquisition for a given frame and date.
+    """Get a Sentinel-1 acquisition for a given frame and date.
 
     Args:
-        frame_id: aria frame ID
+        frame_id: ARIA frame ID
         date: date of the acquisition
 
     Returns:
@@ -216,10 +216,10 @@ def get_acquisition(frame_id: int, date: datetime.date) -> Sentinel1Acquisition:
 
 
 def product_exists(frame_id: int, reference_date: datetime.date, secondary_date: datetime.date) -> bool:
-    """Check if aria product already exists.
+    """Check if ARIA product already exists.
 
     Args:
-        frame_id: aria frame ID
+        frame_id: ARIA frame ID
         reference_date: Reference date of the product
         secondary_date: Secondary date of the product
 
@@ -229,16 +229,17 @@ def product_exists(frame_id: int, reference_date: datetime.date, secondary_date:
     """
     _validate_frame_id(frame_id)
     date_buffer = datetime.timedelta(days=1)
-    params = {
-        'dataset': asf.constants.DATASET.ARIA_S1_GUNW,
-        'frame': frame_id,
-        'start': (reference_date - date_buffer),
-        'end': (reference_date + date_buffer),
-    }
 
-    results = asf.search(**params)
+    results = asf.search(
+        {
+            'dataset': asf.constants.DATASET.ARIA_S1_GUNW,
+            'frame': frame_id,
+            'start': (reference_date - date_buffer),
+            'end': (reference_date + date_buffer),
+        }
+    )
     exists_in_archive = any(
-        [_dates_match(result.properties['sceneName'], reference_date, secondary_date) for result in results]
+        _dates_match(result.properties['sceneName'], reference_date, secondary_date) for result in results
     )
 
     return exists_in_archive

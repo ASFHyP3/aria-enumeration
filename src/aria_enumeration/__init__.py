@@ -1,4 +1,4 @@
-"""This is a module for enumerating aria product inputs."""
+"""This is a module for enumerating ARIA processing inputs."""
 
 from importlib.metadata import version
 
