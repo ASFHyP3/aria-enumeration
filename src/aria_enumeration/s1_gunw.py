@@ -21,7 +21,7 @@ class AriaFrame:
 
     """
 
-    frame_id: int
+    id: int
     path: int
     flight_direction: str
     polygon: shapely.Polygon
@@ -49,26 +49,28 @@ class AriaFrame:
 
 @dataclass(frozen=True)
 class Sentinel1Acquisition:
-    """Class respresenting a Sentinel 1 acquisition.
+    """Class respresenting a Sentinel 1 acquisition overa given aria frame.
 
     Args:
          date: the date of the acquisition
+         frame: aria frame the the acquisition covers
          products: list of SLC's from the acquisition
 
     """
 
     date: datetime.date
+    frame: AriaFrame
     products: list[asf.ASFProduct]
 
 
-class InvalidFrameIDError(Exception):
+class InvalidFrameIdError(Exception):
     """Exception for Frame ID being out of range."""
     pass
 
 
 def _validate_frame_id(frame_id: int) -> None:
     if frame_id > 27397 or frame_id < 0:
-        raise InvalidFrameIDError(f'Frame ID is out of range [0, 27397] given {frame_id}')
+        raise InvalidFrameIdError(f'Frame ID is out of range [0, 27397] given {frame_id}')
 
 
 def _load_aria_frames_by_id() -> dict[int, AriaFrame]:
@@ -81,13 +83,13 @@ def _load_aria_frames_by_id() -> dict[int, AriaFrame]:
         props = frame['properties']
 
         aria_frame = AriaFrame(
-            frame_id=props['id'],
+            id=props['id'],
             path=props['path'],
             flight_direction=props['dir'],
             polygon=shapely.Polygon(frame['geometry']['coordinates'][0]),
         )
 
-        frames_by_id[aria_frame.frame_id] = aria_frame
+        frames_by_id[aria_frame.id] = aria_frame
 
     return frames_by_id
 
@@ -144,9 +146,9 @@ def get_acquisitions(frame_id: int) -> list[Sentinel1Acquisition]:
     Returns:
         aquisitions: All the Sentinel 1 acquisitions for a given frame
     """
-    _validate_frame_id(frame_id)
-    granules = _get_granules_for_frame(frame_id)
-    aquisitions = _get_acquisitions_from(granules)
+    frame = get_frame(frame_id)
+    granules = _get_granules_for(frame)
+    aquisitions = _get_acquisitions_from(granules, frame)
     aquisitions.sort(key=lambda group: group.date)
 
     return aquisitions
@@ -161,15 +163,12 @@ def get_acquisition_dates(frame_id: int) -> list[datetime.date]:
     Returns:
         aquisitions: All the dates of acquisitions for a given frame
     """
-    _validate_frame_id(frame_id)
     aquisitions = get_acquisitions(frame_id)
 
     return [acquisition.date for acquisition in aquisitions]
 
 
-def _get_granules_for_frame(frame_id: int, date: datetime.date | None = None) -> asf.ASFSearchResults:
-    frame = get_frame(frame_id)
-
+def _get_granules_for(frame: AriaFrame, date: datetime.date | None = None) -> asf.ASFSearchResults:
     search_params = {
         'dataset': asf.constants.DATASET.SENTINEL1,
         'platform': ['SA', 'SB'],
@@ -191,7 +190,7 @@ def _get_granules_for_frame(frame_id: int, date: datetime.date | None = None) ->
     return results
 
 
-def _get_acquisitions_from(granules: asf.ASFSearchResults) -> list[Sentinel1Acquisition]:
+def _get_acquisitions_from(granules: asf.ASFSearchResults, frame: AriaFrame) -> list[Sentinel1Acquisition]:
     groups = defaultdict(list)
     for granule in granules:
         props = granule.properties
@@ -206,28 +205,29 @@ def _get_acquisitions_from(granules: asf.ASFSearchResults) -> list[Sentinel1Acqu
         return min(date_from_granule(granule) for granule in group)
 
     s1_acquisitions = [
-        Sentinel1Acquisition(date=get_date_from_group(group), products=[product for product in group])
+        Sentinel1Acquisition(date=get_date_from_group(group), frame=frame, products=[product for product in group])
         for group in groups.values()
     ]
 
     return s1_acquisitions
 
 
-def get_slcs(frame_id: int, date: datetime.date) -> list[asf.ASFProduct]:
-    """Get SLC's for a given Sentinel 1 acquisition.
+def get_acquisition(frame_id: int, date: datetime.date) -> list[asf.ASFProduct]:
+    """Get a Sentinel 1 acquisition for a given frame and date.
 
     Args:
         frame_id: aria frame ID
         date: date of the acquisition
 
     Returns:
-        slcs: list of Sentinel 1 SLCs
+        acquisition: Sentiel 1 acquisition
 
     """
-    _validate_frame_id(frame_id)
-    slcs = _get_granules_for_frame(frame_id, date)
+    frame = get_frame(frame_id)
+    products = _get_granules_for(frame, date)
+    acquisition = Sentinel1Acquisition(date=date, frame=frame, products=products)
 
-    return slcs
+    return acquisition
 
 
 def product_exists(frame_id: int, reference_date: datetime.date, secondary_date: datetime.date) -> bool:

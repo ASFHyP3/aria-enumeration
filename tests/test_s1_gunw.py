@@ -23,12 +23,6 @@ def test_get_frames():
     assert len(all_filters) == 2
 
 
-def test_s1_gunw_frame_wkt():
-    wkt = s1_gunw.get_frame(100).wkt
-
-    assert 'POLYGON' in wkt
-
-
 def test_get_frames_by_path():
     frames = s1_gunw.get_frames(path=100)
 
@@ -43,15 +37,27 @@ def test_get_frames_by_flight_direction():
     assert all([frame.flight_direction == 'DESCENDING' for frame in descending])
 
 
+def test_s1_gunw_frame():
+    frame = s1_gunw.get_frame(100)
+
+    assert frame.id == 100
+
+    with pytest.raises(s1_gunw.InvalidFrameIdError, match=r''):
+        s1_gunw.get_frame(-1)
+
+    with pytest.raises(s1_gunw.InvalidFrameIdError, match=r''):
+        s1_gunw.get_frame(27398)
+
+
 @pytest.mark.network
-def test_get_stack():
+def test_get_acquisitions():
     stack = s1_gunw.get_acquisitions(200)
     assert len(stack) > 0
 
 
 @pytest.mark.network
-def test_get_slcs():
-    slcs = s1_gunw.get_slcs(200, date(2025, 5, 28))
+def test_get_acquisition():
+    slcs = s1_gunw.get_acquisition(200, date(2025, 5, 28))
 
     assert slcs
 
