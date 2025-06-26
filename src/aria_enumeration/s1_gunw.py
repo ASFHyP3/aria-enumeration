@@ -61,6 +61,16 @@ class Sentinel1Acquisition:
     products: list[asf.ASFProduct]
 
 
+class InvalidFrameIDError(Exception):
+    """Exception for Frame ID being out of range."""
+    pass
+
+
+def _validate_frame_id(frame_id: int) -> None:
+    if frame_id > 27397 or frame_id < 0:
+        raise InvalidFrameIDError(f'Frame ID is out of range [0, 27397] given {frame_id}')
+
+
 def _load_aria_frames_by_id() -> dict[int, AriaFrame]:
     frames_by_id = {}
 
@@ -121,6 +131,7 @@ def get_frame(frame_id: int) -> AriaFrame:
     Returns:
         aria_frame: the aria frame with the given ID
     """
+    _validate_frame_id(frame_id)
     return FRAMES_BY_ID[frame_id]
 
 
@@ -133,6 +144,7 @@ def get_acquisitions(frame_id: int) -> list[Sentinel1Acquisition]:
     Returns:
         aquisitions: All the Sentinel 1 acquisitions for a given frame
     """
+    _validate_frame_id(frame_id)
     granules = _get_granules_for_frame(frame_id)
     aquisitions = _get_acquisitions_from(granules)
     aquisitions.sort(key=lambda group: group.date)
@@ -149,6 +161,7 @@ def get_acquisition_dates(frame_id: int) -> list[datetime.date]:
     Returns:
         aquisitions: All the dates of acquisitions for a given frame
     """
+    _validate_frame_id(frame_id)
     aquisitions = get_acquisitions(frame_id)
 
     return [acquisition.date for acquisition in aquisitions]
@@ -211,6 +224,7 @@ def get_slcs(frame_id: int, date: datetime.date) -> list[asf.ASFProduct]:
         slcs: list of Sentinel 1 SLCs
 
     """
+    _validate_frame_id(frame_id)
     slcs = _get_granules_for_frame(frame_id, date)
 
     return slcs
@@ -228,6 +242,7 @@ def product_exists(frame_id: int, reference_date: datetime.date, secondary_date:
         exists_in_archive: whether the product already exists in ASF's archive
 
     """
+    _validate_frame_id(frame_id)
     date_buffer = datetime.timedelta(days=1)
     params = {
         'dataset': asf.constants.DATASET.ARIA_S1_GUNW,
