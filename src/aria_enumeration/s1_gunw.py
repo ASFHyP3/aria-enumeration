@@ -140,16 +140,18 @@ def get_frame(frame_id: int) -> AriaFrame:
     return FRAMES_BY_ID[frame_id]
 
 
-def get_acquisitions(frame_id: int) -> list[Sentinel1Acquisition]:
+def get_acquisitions(frame: int | AriaFrame) -> list[Sentinel1Acquisition]:
     """Get all the possible Sentinel-1 aquisitions over a given ARIA frame ID.
 
     Args:
-        frame_id: the ARIA frame ID to get the aquisitions from
+        frame: the ARIA frame ID to get the aquisitions from
 
     Returns:
         aquisitions: All the Sentinel-1 acquisitions for a given ARIA frame
     """
-    frame = get_frame(frame_id)
+    if type(frame) is int:
+        frame = get_frame(frame)
+
     granules = _get_granules_for(frame)
     aquisitions = _get_acquisitions_from(granules, frame)
     aquisitions.sort(key=lambda group: group.date)
@@ -197,29 +199,30 @@ def _get_acquisitions_from(granules: asf.ASFSearchResults, frame: AriaFrame) -> 
     return s1_acquisitions
 
 
-def get_acquisition(frame_id: int, date: datetime.date) -> Sentinel1Acquisition:
+def get_acquisition(frame: int | AriaFrame, date: datetime.date) -> Sentinel1Acquisition:
     """Get a Sentinel-1 acquisition for a given frame and date.
 
     Args:
-        frame_id: ARIA frame ID
+        frame: ARIA frame object or ARIA frame ID
         date: date of the acquisition
 
     Returns:
         acquisition: Sentiel 1 acquisition
 
     """
-    frame = get_frame(frame_id)
+    if type(frame) is int:
+        frame = get_frame(frame)
     products = _get_granules_for(frame, date)
     acquisition = Sentinel1Acquisition(date=date, frame=frame, products=products)
 
     return acquisition
 
 
-def product_exists(frame_id: int, reference_date: datetime.date, secondary_date: datetime.date) -> bool:
+def product_exists(frame: int | AriaFrame, reference_date: datetime.date, secondary_date: datetime.date) -> bool:
     """Check if ARIA product already exists.
 
     Args:
-        frame_id: ARIA frame ID
+        frame: ARIA frame or frame ID
         reference_date: Reference date of the product
         secondary_date: Secondary date of the product
 
@@ -227,17 +230,19 @@ def product_exists(frame_id: int, reference_date: datetime.date, secondary_date:
         exists_in_archive: whether the product already exists in ASF's archive
 
     """
-    _validate_frame_id(frame_id)
+    if type(frame) is AriaFrame:
+        frame = frame.id
+
+    _validate_frame_id(frame)
     date_buffer = datetime.timedelta(days=1)
 
     results = asf.search(
-        {
-            'dataset': asf.constants.DATASET.ARIA_S1_GUNW,
-            'frame': frame_id,
-            'start': (reference_date - date_buffer),
-            'end': (reference_date + date_buffer),
-        }
+        dataset=asf.constants.DATASET.ARIA_S1_GUNW,
+        frame=frame,
+        start=reference_date - date_buffer,
+        end=reference_date + date_buffer,
     )
+
     exists_in_archive = any(
         _dates_match(result.properties['sceneName'], reference_date, secondary_date) for result in results
     )
