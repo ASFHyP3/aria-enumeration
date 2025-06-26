@@ -1,3 +1,4 @@
+import re
 from datetime import date
 
 import pytest
@@ -42,17 +43,19 @@ def test_s1_gunw_frame():
 
     assert frame.id == 100
 
-    with pytest.raises(s1_gunw.InvalidFrameIdError, match=r''):
+    with pytest.raises(s1_gunw.InvalidFrameIdError, match=re.escape('Frame ID is out of range [0, 27397] given 27398')):
+        s1_gunw.get_frame(27398)
+
+    with pytest.raises(s1_gunw.InvalidFrameIdError, match=re.escape('Frame ID is out of range [0, 27397] given -1')):
         s1_gunw.get_frame(-1)
 
-    with pytest.raises(s1_gunw.InvalidFrameIdError, match=r''):
-        s1_gunw.get_frame(27398)
 
 
 @pytest.mark.network
 def test_get_acquisitions():
-    stack = s1_gunw.get_acquisitions(200)
-    assert len(stack) > 0
+    acquisitions = s1_gunw.get_acquisitions(200)
+
+    assert all(acquisition.frame.id == 200 for acquisition in acquisitions)
 
 
 @pytest.mark.network
