@@ -15,10 +15,10 @@ class AriaFrame:
     """Class for representing an aria frame.
 
     Args:
-        frame_id: aria frame id
+        id: Id of the aria frame
         path: path the frame is on
-        flight direction
-
+        flight_direction: either 'ASCENDING' or 'DESCENDING'
+        polygon: shapely polygon of the frame geometry
     """
 
     id: int
@@ -55,7 +55,6 @@ class Sentinel1Acquisition:
          date: the date of the acquisition
          frame: aria frame the the acquisition covers
          products: list of SLC's from the acquisition
-
     """
 
     date: datetime.date
@@ -130,6 +129,9 @@ def get_frames(
 
 def get_frame(frame_id: int) -> AriaFrame:
     """Get a single aria frame by it's frame ID .
+
+    Args:
+        frame_id: aria frame id
 
     Returns:
         aria_frame: the aria frame with the given ID
