@@ -70,7 +70,7 @@ class InvalidFrameIdError(Exception):
 
 
 def _validate_frame_id(frame_id: int) -> None:
-    if frame_id > 27397 or frame_id < 0:
+    if frame_id not in FRAMES_BY_ID:
         raise InvalidFrameIdError(f'Frame ID is out of range [0, 27397] given {frame_id}')
 
 
