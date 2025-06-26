@@ -185,15 +185,20 @@ def _get_acquisitions_from(granules: asf.ASFSearchResults) -> list[Sentinel1Acqu
         group_id = f'{props["platform"]}_{props["orbit"]}'
         groups[group_id].append(granule)
 
-    def _get_date_from_group(group: list[asf.ASFProduct]) -> datetime.date:
-        return min(datetime.datetime.fromisoformat(granule.properties['startTime']).date() for granule in group)
+    def date_from_granule(granule: asf.ASFProduct) -> datetime.date:
+        start = granule.properties['startTime']
 
-    aria_groups = [
-        Sentinel1Acquisition(date=_get_date_from_group(group), products=[product for product in group])
+        return datetime.datetime.strptime(start, '%Y-%m-%dT%H:%M:%S%z').date()
+
+    def get_date_from_group(group: list[asf.ASFProduct]) -> datetime.date:
+        return min(date_from_granule(granule) for granule in group)
+
+    s1_acquisitions = [
+        Sentinel1Acquisition(date=get_date_from_group(group), products=[product for product in group])
         for group in groups.values()
     ]
 
-    return aria_groups
+    return s1_acquisitions
 
 
 def get_slcs(frame_id: int, date: datetime.date) -> list[asf.ASFProduct]:
