@@ -65,6 +65,7 @@ class Sentinel1Acquisition:
 
 class InvalidFrameIdError(Exception):
     """Exception for Frame ID being out of range."""
+
     pass
 
 
@@ -194,7 +195,7 @@ def _get_acquisitions_from(granules: asf.ASFSearchResults, frame: AriaFrame) -> 
     return s1_acquisitions
 
 
-def get_acquisition(frame_id: int, date: datetime.date) -> list[asf.ASFProduct]:
+def get_acquisition(frame_id: int, date: datetime.date) -> Sentinel1Acquisition:
     """Get a Sentinel 1 acquisition for a given frame and date.
 
     Args:

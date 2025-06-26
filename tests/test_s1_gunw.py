@@ -50,7 +50,6 @@ def test_s1_gunw_frame():
         s1_gunw.get_frame(-1)
 
 
-
 @pytest.mark.network
 def test_get_acquisitions():
     acquisitions = s1_gunw.get_acquisitions(200)
