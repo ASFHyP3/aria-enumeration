@@ -5,9 +5,13 @@ import importlib.resources
 import json
 from collections import defaultdict
 from dataclasses import dataclass
+import typing
 
 import asf_search as asf
 import shapely
+
+
+FlightDirections = typing.Literal['ASCENDING', 'DESCENDING']
 
 
 @dataclass(frozen=True)
@@ -17,13 +21,13 @@ class AriaFrame:
     Args:
         id: ID of the ARIA frame
         path: path the frame is on
-        flight_direction: either 'ASCENDING' or 'DESCENDING'
+        flight_direction: flight direction of the burst
         polygon: shapely polygon of the frame geometry
     """
 
     id: int
     path: int
-    flight_direction: str
+    flight_direction: FlightDirections
     polygon: shapely.Polygon
 
     def does_intersect(self, geometry: shapely.Geometry) -> bool:
@@ -62,15 +66,20 @@ class Sentinel1Acquisition:
     products: list[asf.ASFProduct]
 
 
-class InvalidFrameIdError(Exception):
-    """Exception for Frame ID being out of range."""
+class AriaEnumerationError(Exception):
+    """Exception for errors with ARIA S1 GUNW enumeration."""
 
     pass
 
 
 def _validate_frame_id(frame_id: int) -> None:
     if frame_id not in FRAMES_BY_ID:
-        raise InvalidFrameIdError(f'Frame ID is out of range [0, 27397] given {frame_id}')
+        raise AriaEnumerationError(f'Frame ID is out of range [0, 27397] given {frame_id}')
+
+
+def _validate_flight_direction(flight_direction: FlightDirections | None) -> None:
+    if flight_direction and flight_direction.upper() not in typing.get_args(FlightDirections):
+        raise AriaEnumerationError('Invalid flight direction, must be either "ASCENDING" or "DESCENDING"')
 
 
 def _load_aria_frames_by_id() -> dict[int, AriaFrame]:
@@ -98,18 +107,19 @@ FRAMES_BY_ID = _load_aria_frames_by_id()
 
 
 def get_frames(
-    geometry: shapely.Geometry | None = None, flight_direction: str | None = None, path: int | None = None
+    geometry: shapely.Geometry | None = None, flight_direction: FlightDirections | None = None, path: int | None = None
 ) -> list[AriaFrame]:
     """Get all ARIA frames that match filter parameters.
 
     Args:
         geometry: get all frames intersecting polygon
-        flight_direction: filter by either 'ASCENDING' or 'DESCENDING'
+        flight_direction: flight direction to filter by
         path: path to filter frames
 
     Returns:
         aria_frames: list of ARIA frames
     """
+    _validate_flight_direction(flight_direction)
     aria_frames = []
 
     for frame in FRAMES_BY_ID.values():
