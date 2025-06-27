@@ -53,7 +53,9 @@ def test_aria_s1_gunw_frame():
     ):
         aria_s1_gunw.get_frame(27398)
 
-    with pytest.raises(aria_s1_gunw.AriaEnumerationError, match=re.escape('Frame ID is out of range [0, 27397] given -1')):
+    with pytest.raises(
+        aria_s1_gunw.AriaEnumerationError, match=re.escape('Frame ID is out of range [0, 27397] given -1')
+    ):
         aria_s1_gunw.get_frame(-1)
 
 
