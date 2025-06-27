@@ -255,13 +255,13 @@ def product_exists(frame: int | AriaFrame, reference_date: datetime.date, second
     )
 
     exists_in_archive = any(
-        _dates_match(result.properties['sceneName'], reference_date, secondary_date) for result in results
+        _gunw_dates_match(result.properties['sceneName'], reference_date, secondary_date) for result in results
     )
 
     return exists_in_archive
 
 
-def _dates_match(granule: str, reference: datetime.date, secondary: datetime.date) -> bool:
+def _gunw_dates_match(granule: str, reference: datetime.date, secondary: datetime.date) -> bool:
     date_strs = granule.split('-')[6].split('_')
     granule_reference, granule_secondary = [
         datetime.datetime.strptime(date_str, '%Y%m%d').date() for date_str in date_strs

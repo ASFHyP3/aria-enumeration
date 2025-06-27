@@ -88,6 +88,39 @@ def test_get_acquisition():
 
 
 @pytest.mark.network
+def test_acquisition_from_standard_products():
+    # S1-GUNW-A-R-064-tops-20241216_20241204-015158-00120W_00038N-PP-6e8f-v3_0_1
+    frame_id = 9852
+    ref_acquisition = aria_s1_gunw.get_acquisition(frame_id, date(2024, 12, 16))
+    sec_acquisition = aria_s1_gunw.get_acquisition(frame_id, date(2024, 12, 4))
+
+    assert set(product.properties['sceneName'] for product in ref_acquisition.products) == {
+        'S1A_IW_SLC__1SDV_20241216T015132_20241216T015159_057011_070161_9D6A',
+        'S1A_IW_SLC__1SDV_20241216T015157_20241216T015224_057011_070161_F3FE',
+    }
+
+    assert set(product.properties['sceneName'] for product in sec_acquisition.products) == {
+        'S1A_IW_SLC__1SDV_20241204T015133_20241204T015200_056836_06FA75_6070',
+        'S1A_IW_SLC__1SDV_20241204T015158_20241204T015225_056836_06FA75_BB7D',
+    }
+
+    # S1-GUNW-A-R-005-tops-20231124_20231112-004542-00103W_00035N-PP-a548-v3_0_1
+    frame_id = 657
+    ref_acquisition = aria_s1_gunw.get_acquisition(frame_id, date(2023, 11, 24))
+    sec_acquisition = aria_s1_gunw.get_acquisition(frame_id, date(2023, 11, 12))
+
+    assert set(product.properties['sceneName'] for product in ref_acquisition.products) == {
+        'S1A_IW_SLC__1SDV_20231124T004516_20231124T004543_051352_063249_3723',
+        'S1A_IW_SLC__1SDV_20231124T004541_20231124T004608_051352_063249_4B9E',
+    }
+
+    assert set(product.properties['sceneName'] for product in sec_acquisition.products) == {
+        'S1A_IW_SLC__1SDV_20231112T004516_20231112T004544_051177_062C3E_C095',
+        'S1A_IW_SLC__1SDV_20231112T004541_20231112T004608_051177_062C3E_2A0E',
+    }
+
+
+@pytest.mark.network
 def test_product_exists():
     frame = aria_s1_gunw.get_frame(25388)
     # 'S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1'
@@ -97,14 +130,14 @@ def test_product_exists():
     assert not aria_s1_gunw.product_exists(25388, date(2025, 5, 26), date(2025, 5, 3))
 
 
-def test_dates_match():
-    assert aria_s1_gunw._dates_match(
+def test_gunw_dates_match():
+    assert aria_s1_gunw._gunw_dates_match(
         'S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1',
         date(2025, 5, 27),
         date(2025, 5, 3),
     )
 
-    assert not aria_s1_gunw._dates_match(
+    assert not aria_s1_gunw._gunw_dates_match(
         'S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1',
         date(2024, 5, 27),
         date(2024, 5, 3),
