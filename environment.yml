@@ -1,4 +1,4 @@
-name: aria_enumeration
+name: asf-enumeration
 channels:
   - conda-forge
   - nodefaults

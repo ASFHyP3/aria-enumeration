@@ -3,12 +3,12 @@ requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "aria_enumeration"
+name = "asf_enumeration"
 requires-python = ">=3.10"
 authors = [
     {name="ASF APD/Tools Team", email="uaf-asf-apd@alaska.edu"},
 ]
-description = "TODO"
+description = "Python library for enumerating ASF product inputs"
 readme = "README.md"
 license = {text = "BSD-3-Clause"}
 classifiers=[
@@ -20,6 +20,7 @@ classifiers=[
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
     "asf_search",
@@ -35,8 +36,8 @@ develop = [
 ]
 
 [project.urls]
-Homepage = "TODO"
-"Bug Tracker" = "TODO"
+Homepage = "https://github.com/ASFHyP3/asf-enumeration"
+"Bug Tracker" = "https://github.com/ASFHyP3/asf-enumeration/issues"
 
 [tool.setuptools]
 include-package-data = true
@@ -47,27 +48,28 @@ where = ["src"]
 
 [tool.setuptools_scm]
 
+[tool.pytest.ini_options]
+markers = [
+    "network",
+]
+
 [tool.ruff]
 line-length = 120
+# The directories to consider when resolving first- vs. third-party imports.
+# See: https://docs.astral.sh/ruff/settings/#src
 src = ["src", "tests"]
 
 [tool.ruff.format]
 indent-style = "space"
 quote-style = "single"
 
-[tool.pytest.ini_options]
-markers = [
-    "network",
-]
-
 [tool.ruff.lint]
 extend-select = [
     "I",   # isort: https://docs.astral.sh/ruff/rules/#isort-i
     "UP",  # pyupgrade: https://docs.astral.sh/ruff/rules/#pyupgrade-up
-    # TODO: Uncomment the following extensions and address the warnings:
-    # "D",   # pydocstyle: https://docs.astral.sh/ruff/rules/#pydocstyle-d
-    # "ANN", # annotations: https://docs.astral.sh/ruff/rules/#flake8-annotations-ann
-    # "PTH", # use-pathlib-pth: https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
+    "D",   # pydocstyle: https://docs.astral.sh/ruff/rules/#pydocstyle-d
+    "ANN", # annotations: https://docs.astral.sh/ruff/rules/#flake8-annotations-ann
+    "PTH", # use-pathlib-pth: https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -85,8 +87,8 @@ suppress-dummy-args = true
 
 [tool.mypy]
 python_version = "3.10"
-warn_unused_ignores = true
 warn_redundant_casts = true
+warn_unused_ignores = true
 warn_unreachable = true
 strict_equality = true
 check_untyped_defs = true
