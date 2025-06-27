@@ -73,7 +73,7 @@ acquisitions_frame_obj = aria_s1_gunw.get_acquisitions(frame)
 An acquisition for a specific date can be found using `aria_s1_gunw.get_acquisition`
 
 ```python
-single_acquisition = aria_s1_gunw.get_acquisitions(frame=9852, date=datetime.date(2014, 11, 3))
+single_acquisition = aria_s1_gunw.get_acquisition(frame=9852, date=datetime.date(2014, 11, 3))
 ```
 
 ### Checking if a Product Exists
