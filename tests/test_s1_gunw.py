@@ -37,7 +37,9 @@ def test_get_frames_by_flight_direction():
     descending = s1_gunw.get_frames(flight_direction='DESCENDING')
     assert all(frame.flight_direction == 'DESCENDING' for frame in descending)
 
-    with pytest.raises(s1_gunw.AriaEnumerationError, match='Invalid flight direction, must be either "ASCENDING" or "DESCENDING"'):
+    with pytest.raises(
+        s1_gunw.AriaEnumerationError, match='Invalid flight direction, must be either "ASCENDING" or "DESCENDING"'
+    ):
         s1_gunw.get_frames(flight_direction='foo')  # type: ignore
 
 
@@ -46,7 +48,9 @@ def test_s1_gunw_frame():
 
     assert frame.id == 100
 
-    with pytest.raises(s1_gunw.AriaEnumerationError, match=re.escape('Frame ID is out of range [0, 27397] given 27398')):
+    with pytest.raises(
+        s1_gunw.AriaEnumerationError, match=re.escape('Frame ID is out of range [0, 27397] given 27398')
+    ):
         s1_gunw.get_frame(27398)
 
     with pytest.raises(s1_gunw.AriaEnumerationError, match=re.escape('Frame ID is out of range [0, 27397] given -1')):
