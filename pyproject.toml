@@ -8,7 +8,7 @@ requires-python = ">=3.10"
 authors = [
     {name="ASF APD/Tools Team", email="uaf-asf-apd@alaska.edu"},
 ]
-description = "TODO"
+description = "Python library for enumerating ASF product inputs"
 readme = "README.md"
 license = {text = "BSD-3-Clause"}
 classifiers=[
@@ -36,8 +36,8 @@ develop = [
 ]
 
 [project.urls]
-Homepage = "TODO"
-"Bug Tracker" = "TODO"
+Homepage = "https://github.com/ASFHyP3/asf-enumeration"
+"Bug Tracker" = "https://github.com/ASFHyP3/asf-enumeration/issues"
 
 [tool.setuptools]
 include-package-data = true

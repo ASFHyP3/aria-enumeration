@@ -74,8 +74,6 @@ def test_get_acquisitions():
     assert all(acquisition.frame.id == 200 for acquisition in acquisitions)
     assert all(len(acquisition.products) <= 3 for acquisition in acquisitions)
 
-    # TODO: Better acquisition testing
-
 
 @pytest.mark.network
 def test_get_acquisition():
