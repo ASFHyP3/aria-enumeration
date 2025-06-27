@@ -85,7 +85,7 @@ def _validate_flight_direction(flight_direction: FlightDirections | None) -> Non
 def _load_aria_frames_by_id() -> dict[int, AriaFrame]:
     frames_by_id = {}
 
-    with importlib.resources.path('aria_enumeration.aria_frames', 'frames.geojson') as frame_file:
+    with importlib.resources.path('asf_enumeration.frame_maps', 'aria_frames.geojson') as frame_file:
         frames = json.loads(frame_file.read_text())
 
     for frame in frames['features']:
