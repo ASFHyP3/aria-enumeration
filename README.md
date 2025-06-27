@@ -7,11 +7,11 @@ Enumeration code for [ARIA S1 GUNW](https://hyp3-docs.asf.alaska.edu/guides/gunw
 
 >>> frames = s1_gunw.get_frames(flight_direction='ASCENDING', path=175)
 >>> frames[0]
-AriaFrame(id=27236, path=175, flight_direction='ASCENDING', polygon=<POLYGON ((30.157 1.767, 29.452 1.621...>)
+AriaFrame(id=27236, path=175, flight_direction='ASCENDING', polygon=<POLYGON ((30.157 1.767...>)))
 
 >>> acquisitions = s1_gunw.get_acquisitions(frames[0])
 >>> acquisitions[0]
-Sentinel1Acquisition(date=datetime.date(2014, 10, 17), frame=AriaFrame(id=27236, path=175, flight_direction='ASCENDING', polygon=<POLYGON ((30.157 1.767, 29.452...>), products=[<asf_search.Products.S1Product.S1Product object at 0x78a0c433b3d0>])
+Sentinel1Acquisition(date=datetime.date(2014, 10, 17), frame=AriaFrame(...), products=[<asf_search.ASFProduct>])
 ```
 
 ## Installation
