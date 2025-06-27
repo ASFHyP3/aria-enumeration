@@ -149,7 +149,7 @@ def get_acquisitions(frame: int | AriaFrame) -> list[Sentinel1Acquisition]:
     Returns:
         aquisitions: All the Sentinel-1 acquisitions for a given ARIA frame
     """
-    if type(frame) is int:
+    if isinstance(frame, int):
         frame = get_frame(frame)
 
     granules = _get_granules_for(frame)
@@ -210,8 +210,9 @@ def get_acquisition(frame: int | AriaFrame, date: datetime.date) -> Sentinel1Acq
         acquisition: Sentiel 1 acquisition
 
     """
-    if type(frame) is int:
+    if isinstance(frame, int):
         frame = get_frame(frame)
+
     products = _get_granules_for(frame, date)
     acquisition = Sentinel1Acquisition(date=date, frame=frame, products=products)
 
@@ -230,7 +231,7 @@ def product_exists(frame: int | AriaFrame, reference_date: datetime.date, second
         exists_in_archive: whether the product already exists in ASF's archive
 
     """
-    if type(frame) is AriaFrame:
+    if isinstance(frame, AriaFrame):
         frame = frame.id
 
     _validate_frame_id(frame)
