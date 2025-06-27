@@ -82,7 +82,7 @@ single_acquisition = aria_s1_gunw.get_acquisitions(frame=9852, date=datetime.dat
 
 ```python
     # S1-GUNW-D-R-163-tops-20250527_20250503-212910-00121E_00010S-PP-07c7-v3_0_1
-    aria_s1_gunw.product_exists(25388, date(2025, 5, 27), date(2025, 5, 3))
+    aria_s1_gunw.product_exists(25388, datetime.date(2025, 5, 27), datetime.date(2025, 5, 3))
 ```
 
 
