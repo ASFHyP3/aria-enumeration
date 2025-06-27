@@ -3,9 +3,9 @@
 import datetime
 import importlib.resources
 import json
+import typing
 from collections import defaultdict
 from dataclasses import dataclass
-import typing
 
 import asf_search as asf
 import shapely
