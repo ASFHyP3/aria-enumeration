@@ -154,7 +154,7 @@ def get_acquisitions(frame: int | AriaFrame) -> list[Sentinel1Acquisition]:
     """Get all the possible Sentinel-1 aquisitions over a given ARIA frame ID.
 
     Args:
-        frame: the ARIA frame ID to get the aquisitions from
+        frame: the ARIA frame ID or frame object to get the aquisitions from
 
     Returns:
         aquisitions: All the Sentinel-1 acquisitions for a given ARIA frame
@@ -213,7 +213,7 @@ def get_acquisition(frame: int | AriaFrame, date: datetime.date) -> Sentinel1Acq
     """Get a Sentinel-1 acquisition for a given frame and date.
 
     Args:
-        frame: ARIA frame object or ARIA frame ID
+        frame: ARIA frame ID or frame object
         date: date of the acquisition
 
     Returns:
@@ -233,7 +233,7 @@ def product_exists(frame: int | AriaFrame, reference_date: datetime.date, second
     """Check if ARIA product already exists.
 
     Args:
-        frame: ARIA frame or frame ID
+        frame: ARIA frame ID or frame object
         reference_date: Reference date of the product
         secondary_date: Secondary date of the product
 
