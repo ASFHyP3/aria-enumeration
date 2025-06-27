@@ -56,8 +56,12 @@ def test_get_acquisitions():
 
     acquisitions = s1_gunw.get_acquisitions(frame)
 
-    assert all([frame_version.date == id_version.date for (frame_version, id_version) in zip(acquisitions, s1_gunw.get_acquisitions(200))])
+    assert all([
+        frame_version.date == id_version.date
+        for (frame_version, id_version) in zip(acquisitions, s1_gunw.get_acquisitions(200))
+    ])
     assert all(acquisition.frame.id == 200 for acquisition in acquisitions)
+    assert all(len(acquisition.products) <= 3 for acquisition in acquisitions)
 
     # TODO: Better acquisition testing
 
