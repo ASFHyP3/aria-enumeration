@@ -10,7 +10,7 @@ authors = [
 ]
 description = "TODO"
 readme = "README.md"
-license = {text = "BSD-3-Clause"}
+license = "BSD-3-Clause"
 classifiers=[
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: BSD License",
