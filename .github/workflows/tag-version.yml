@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   call-bump-version-workflow:
     # For first-time setup, create a v0.0.0 tag as shown here:

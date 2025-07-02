@@ -1,5 +1,8 @@
 name: Test with pytest
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -14,6 +17,6 @@ jobs:
   call-pytest-workflow:
     uses: ASFHyP3/actions/.github/workflows/reusable-pytest.yml@v0.20.0
     with:
-      local_package_name: aria_enumeration
+      local_package_name: asf_enumeration
       python_versions: >-
         ["3.10", "3.11", "3.12", "3.13"]
